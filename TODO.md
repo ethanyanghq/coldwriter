@@ -31,7 +31,7 @@ every script command is `scripts/README.md`; change it before changing a script 
 
 ## 3. queue.py (outreach consumer)
 
-- [x] URL normalization: lowercase, https, no query, no fragment, no trailing slash
+- [x] URL normalization: lowercase, https, no www, no query, no fragment, no trailing slash
 - [x] `capture`: exists vs captured; missing `name` exits 1
 - [x] `draft [--redraft]`: targets query, five exemplars newest first, profile and corrections files or null
 - [x] `add`: insert draft, re-render queue
@@ -57,7 +57,7 @@ every script command is `scripts/README.md`; change it before changing a script 
 - [x] `.claude-plugin/marketplace.json` so `/plugin marketplace add <owner>/coldwriter` resolves a single-plugin repo (verify with `claude plugin validate`)
 - [x] README: recommended MCP servers and the suggested `.mcp.json`
 - [ ] README: the learning-curve SVG from real data (run `/coldwriter:status --chart` in a workspace after a few learn runs, copy `learning-curve.svg` in, link it)
-- [x] Manual smoke test: `claude --plugin-dir .` against `.workspace/` with a real MCP capture (init, capture, draft, review, learn, status ran on 2026-09-15; `send --contact` and `sent` are exercised by your first real send)
+- [x] Manual smoke test: `claude --plugin-dir .` against a workspace outside the checkout (`~/coldwriter-workspace`) with a real MCP capture (init, capture, draft, review, learn, status ran on 2026-09-15; `send --contact` and `sent` are exercised by your first real send)
 - [x] Accept the trust dialog here once so `.claude/settings.json` applies
 - [x] First push: confirm `claude plugin validate` runs without login in CI
 - [x] CHANGELOG 0.1.0

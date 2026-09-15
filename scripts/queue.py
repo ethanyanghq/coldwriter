@@ -21,12 +21,13 @@ H2 = re.compile(r"^## \[(\d+)\]")
 
 
 def normalize_url(url):
-    """Lowercase, https, no query, no fragment, no trailing slash."""
+    """Lowercase, https, no www, no query, no fragment, no trailing slash."""
     url = url.strip().lower()
     if "://" not in url:
         url = "https://" + url
     parts = urlsplit(url)
-    return urlunsplit(("https", parts.netloc, parts.path.rstrip("/"), "", ""))
+    host = parts.netloc[4:] if parts.netloc.startswith("www.") else parts.netloc
+    return urlunsplit(("https", host, parts.path.rstrip("/"), "", ""))
 
 
 def contact(conn, contact_id):

@@ -16,6 +16,8 @@ validate:  ## plugin manifest and skill frontmatter
 guard:     ## nothing private tracked or untracked; no LinkedIn write tools or secrets in scripts/ or skills/
 	@bad=$$(git ls-files --cached --others --exclude-standard | grep -E '(^|/)DESIGN\.md$$|^me/|\.sqlite'); \
 	  if [ -n "$$bad" ]; then echo "private files present:"; echo "$$bad"; exit 1; fi
+	@ws=$$(find . -name outreach.sqlite -not -path './.git/*' | head -1); \
+	  if [ -n "$$ws" ]; then echo "workspace inside the plugin checkout: $$ws"; exit 1; fi
 	@bad=$$(grep -rEn 'connect_with_person|send_message|search_people|get_sidebar_profiles|api_key|password' scripts skills); \
 	  if [ -n "$$bad" ]; then echo "forbidden tokens:"; echo "$$bad"; exit 1; fi
 	@echo "guard ok"

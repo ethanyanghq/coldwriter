@@ -72,7 +72,7 @@ def test_capture_normalizes_the_url_and_dedupes(ws):
     out = capture(ws, "HTTP://www.LinkedIn.com/in/ChrisDoe/?trk=x#top").stdout
     assert out.strip() == "#1 captured Chris Doe"
     row = connect(ws).execute("SELECT * FROM contacts").fetchone()
-    assert row["linkedin_url"] == "https://www.linkedin.com/in/chrisdoe"
+    assert row["linkedin_url"] == "https://linkedin.com/in/chrisdoe"
     assert (row["headline"], row["company"], row["title"], row["status"]) == (
         "Senior PM, Google",
         "Google",
@@ -81,7 +81,9 @@ def test_capture_normalizes_the_url_and_dedupes(ws):
     )
     assert json.loads(row["profile_json"])["posts"][0]["id"] == "7f3a1c"
 
-    assert capture(ws, "www.linkedin.com/in/chrisdoe").stdout.strip() == "#1 exists Chris Doe"
+    assert capture(ws, "linkedin.com/in/chrisdoe").stdout.strip() == "#1 exists Chris Doe"
+    exists = capture(ws, "https://www.linkedin.com/in/chrisdoe/").stdout.strip()
+    assert exists == "#1 exists Chris Doe"
     assert connect(ws).execute("SELECT COUNT(*) FROM contacts").fetchone()[0] == 1
 
 

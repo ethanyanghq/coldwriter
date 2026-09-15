@@ -4,9 +4,9 @@ DESIGN.md
 .claude/settings.local.json
 .env
 
-# Workspace files. A workspace is created by /coldwriter:init and is never a git
-# repo; these only guard against one being created inside the plugin checkout.
-/.workspace/
+# Workspace files. A workspace is created by /coldwriter:init, is never a git repo,
+# and never lives inside this checkout; these keep an accidental one out of a commit
+# while `make guard` fails on it.
 /me/
 /constitution.md
 /queue.md

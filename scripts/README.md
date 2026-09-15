@@ -96,7 +96,7 @@ Mean distance is over the batch's non-scratch edits, `n/a` when there are none. 
 
 | command | effect | stdout |
 |---|---|---|
-| `capture --url URL --profile JSON` | Normalizes the URL (lowercase, `https`, no query, no fragment, no trailing slash). If a contact with that URL exists, does nothing. Otherwise inserts it as `queued` with `name`, `headline`, `company`, `title` copied from the profile JSON. `name` missing: exit 1. | `#<id> exists <name>` or `#<id> captured <name>` |
+| `capture --url URL --profile JSON` | Normalizes the URL (lowercase, `https`, no `www.`, no query, no fragment, no trailing slash). If a contact with that URL exists, does nothing. Otherwise inserts it as `queued` with `name`, `headline`, `company`, `title` copied from the profile JSON. `name` missing: exit 1. | `#<id> exists <name>` or `#<id> captured <name>` |
 | `draft [--redraft ID]` | Emits drafting context for every contact that has no `edits` row and is not `sent`; with `--redraft`, for that contact only (exit 1 if it has an `edits` row). Writes nothing. | JSON below |
 | `add --contact ID --text TEXT [--sources JSON]` | Inserts a draft (`context_ref=contact:<id>`, current constitution sha, `sources_json` default `[]`). Re-renders `queue.md`. | `#<draft_id> draft for #<id> · <n> chars` |
 | `review [--contact ID --final TEXT [--note TEXT]]` | Without options, parses `<workspace>/queue.md`. With `--contact`, records one contact the same way. Re-renders `queue.md`. | one line per contact: `#<id> ok`, `#<id> edited · distance <d>`, `#<id> untouched` |

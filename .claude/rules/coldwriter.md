@@ -13,7 +13,7 @@ A Claude Code plugin: LinkedIn coffee-chat notes drafted in the user's voice and
     tests/                       pytest; tests/fixtures/ are the contract's examples
     TODO.md                      build checklist; check items off as they land
 
-A workspace is created by `/coldwriter:init`, is never a git repo, and is never this directory. It holds `me/`, `constitution.md`, `queue.md`, `db/outreach.sqlite`. For manual runs use a gitignored `.workspace/` here and pass `--workspace .workspace`. Tests use temp directories.
+A workspace is created by `/coldwriter:init`, is never a git repo, and is never this directory or anything under it: Claude Code loads this directory's `.claude/rules/` as parent rules for any subdirectory, and the model then chases DESIGN.md. It holds `me/`, `constitution.md`, `queue.md`, `db/outreach.sqlite`. For manual runs use `~/coldwriter-workspace` and run the scripts from inside it or with `--workspace ~/coldwriter-workspace`. `make guard` fails on any `outreach.sqlite` under this checkout. Tests use temp directories.
 
 ## Invariants
 

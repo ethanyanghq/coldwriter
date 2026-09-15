@@ -31,7 +31,7 @@ INSERT OR IGNORE INTO meta (key, value) VALUES ('schema_version', '9');
 -- contacts: one row per person. Identity is the normalized URL, nothing else.
 CREATE TABLE IF NOT EXISTS contacts (
     id            INTEGER PRIMARY KEY,
-    linkedin_url  TEXT NOT NULL UNIQUE,          -- normalized: lowercase, no query, no trailing slash
+    linkedin_url  TEXT NOT NULL UNIQUE,          -- normalized: lowercase, https, no www, no query, no fragment, no trailing slash
     name          TEXT NOT NULL,
     headline      TEXT,
     company       TEXT,
