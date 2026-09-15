@@ -54,11 +54,13 @@ every script command is `scripts/README.md`; change it before changing a script 
 
 ## 5. Release
 
-- [ ] `.claude-plugin/marketplace.json` so `/plugin marketplace add <owner>/coldwriter` resolves a single-plugin repo (verify with `claude plugin validate`)
-- [ ] README: recommended MCP servers and the suggested `.mcp.json`; the learning-curve SVG from real data
-- [ ] Manual smoke test: `claude --plugin-dir .` against `.workspace/` with a real MCP capture
+- [x] `.claude-plugin/marketplace.json` so `/plugin marketplace add <owner>/coldwriter` resolves a single-plugin repo (verify with `claude plugin validate`)
+- [x] README: recommended MCP servers and the suggested `.mcp.json`
+- [ ] README: the learning-curve SVG from real data (run `/coldwriter:status --chart` in a workspace after a few learn runs, copy `learning-curve.svg` in, link it)
+- [ ] Manual smoke test: `claude --plugin-dir .` against `.workspace/` with a real MCP capture (needs the LinkedIn MCP server signed in; see README)
 - [ ] Accept the trust dialog here once so `.claude/settings.json` applies
-- [ ] First push: confirm `claude plugin validate` runs without login in CI
-- [ ] CHANGELOG 0.1.0, `claude plugin tag`
-- [ ] Handles: `github.com/coldwriter`, `@coldwriter`, a domain
-- [ ] Optional, after the skills exist: `evals/` cases for `claude plugin eval`
+- [x] First push: confirm `claude plugin validate` runs without login in CI
+- [x] CHANGELOG 0.1.0
+- [ ] `claude plugin tag --push` after the smoke test (dry run passes; the tag is `coldwriter--v0.1.0`)
+- [ ] Handles: `github.com/coldwriter` (free as of 2026-09-15), `@coldwriter` (free on Bluesky; X unchecked), a domain (`coldwriter.com` is registered and parked for sale; `.dev`, `.io`, `.app` have no DNS)
+- [x] Optional, after the skills exist: `evals/` cases for `claude plugin eval` (one case written; the command is early access and not enabled on this account, so it has not been run)

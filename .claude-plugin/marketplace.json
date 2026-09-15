@@ -1,0 +1,14 @@
+{
+  "name": "coldwriter",
+  "owner": {
+    "name": "Ethan Yang"
+  },
+  "description": "Coldwriter: LinkedIn coffee-chat notes drafted in your voice and learned from your edits.",
+  "plugins": [
+    {
+      "name": "coldwriter",
+      "source": "./",
+      "description": "LinkedIn coffee-chat notes drafted in your voice and learned from your edits. Never sends, never holds credentials."
+    }
+  ]
+}
