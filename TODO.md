@@ -6,10 +6,10 @@ every script command is `scripts/README.md`; change it before changing a script 
 ## 1. Modules
 
 ### diff.py
-- [ ] `distance(a, b)`: `1 - SequenceMatcher(autojunk=False).ratio()` over characters
-- [ ] `hunks(a, b)`: word-level opcodes, `equal` dropped
-- [ ] CLI `--a --b` printing `{"distance", "hunks"}`
-- [ ] `tests/test_diff.py`: identical is 0, disjoint is 1.0, one replaced word is one `replace` hunk
+- [x] `distance(a, b)`: `1 - SequenceMatcher(autojunk=False).ratio()` over characters
+- [x] `hunks(a, b)`: word-level opcodes, `equal` dropped
+- [x] CLI `--a --b` printing `{"distance", "hunks"}`
+- [x] `tests/test_diff.py`: identical is 0, disjoint is 1.0, one replaced word is one `replace` hunk
 
 ### render.py
 - [ ] `render_constitution(rules, examples, version, date)`: header line, generated comment, `## Rules`, one `## When <condition>` per distinct condition, `## Examples` with the two most recent finals
