@@ -14,20 +14,20 @@ every script command is `scripts/README.md`; change it before changing a script 
 ### render.py
 - [x] `render_constitution(rules, examples, version, date)`: header line, generated comment, `## Rules`, one `## When <condition>` per distinct condition, `## Examples` with the two most recent finals
 - [x] `parse_constitution(text)` returning `[(statement, condition)]`, skipping Examples
-- [ ] CLI preview (reads the db, writes nothing)
+- [x] CLI preview (reads the db, writes nothing)
 - [x] `tests/test_render.py`: render then parse round-trips `tests/fixtures/constitution-v7.md`; an empty rule set renders a valid header
 
 ## 2. db.py (learn core and workspace)
 
-- [ ] Shared helpers: `connect(workspace)` (exit 2 with the contract's message), `now()`, `read_arg()` for `@path` and `-`, `sha16()`, `plugin_root()`
-- [ ] `render_and_record(conn)`: render, sha, no-op if unchanged, insert `constitutions` row with parent, write `constitution.md`. Used by init, prefer, learn apply
-- [ ] `init`: create `me/` and `db/`; apply schema; copy `templates/workspace-CLAUDE.md`; parse `seeds.yaml` bullets; case-insensitive dedupe so a rerun is a no-op; `--from` via `parse_constitution`; render v1
-- [ ] `history --text ...` (repeatable): `past:<n>` edits, distance 1.0
-- [ ] `prefer --statement [--when]`: duplicate statement exits 1
-- [ ] `learn emit`: kind classification, hunks, `label` from `v_context_labels`, non-retired preferences, retired statements, `{"edits": []}` when empty
-- [ ] `learn apply --reconcile [--mode]`: the seven steps in order. Validation is all-or-nothing; anti-churn (retire only rules active before the run); a re-proposed rule needs 4 or more distinct edits; `approve` mode inserts new rules as active/history; changelog stored as `learn_runs.summary`
-- [ ] `status [--chart]`: text report in the contract's layout; SVG written as a plain string, no library
-- [ ] `tests/test_db.py`: init idempotence; `--from`; history numbering; prefer duplicate; emit shape against fixtures; apply with `tests/fixtures/reconcile.json` checking counts, activation, retirement, merge, `learned_at`, and the unchanged-render case; approve mode; status output
+- [x] Shared helpers: `connect(workspace)` (exit 2 with the contract's message), `now()`, `read_arg()` for `@path` and `-`, `sha16()`, `plugin_root()`
+- [x] `render_and_record(conn)`: render, sha, no-op if unchanged, insert `constitutions` row with parent, write `constitution.md`. Used by init, prefer, learn apply
+- [x] `init`: create `me/` and `db/`; apply schema; copy `templates/workspace-CLAUDE.md`; parse `seeds.yaml` bullets; case-insensitive dedupe so a rerun is a no-op; `--from` via `parse_constitution`; render v1
+- [x] `history --text ...` (repeatable): `past:<n>` edits, distance 1.0
+- [x] `prefer --statement [--when]`: duplicate statement exits 1
+- [x] `learn emit`: kind classification, hunks, `label` from `v_context_labels`, non-retired preferences, retired statements, `{"edits": []}` when empty
+- [x] `learn apply --reconcile [--mode]`: the seven steps in order. Validation is all-or-nothing; anti-churn (retire only rules active before the run); a re-proposed rule needs 4 or more distinct edits; `approve` mode inserts new rules as active/history; changelog stored as `learn_runs.summary`
+- [x] `status [--chart]`: text report in the contract's layout; SVG written as a plain string, no library
+- [x] `tests/test_db.py`: init idempotence; `--from`; history numbering; prefer duplicate; emit shape against fixtures; apply with `tests/fixtures/reconcile.json` checking counts, activation, retirement, merge, `learned_at`, and the unchanged-render case; approve mode; status output
 
 ## 3. queue.py (outreach consumer)
 

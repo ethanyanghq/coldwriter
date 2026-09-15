@@ -1,4 +1,4 @@
-from conftest import FIXTURES
+from conftest import FIXTURES, connect, run
 from render import parse_constitution, render_constitution
 
 FIXTURE = FIXTURES / "constitution-v7.md"
@@ -27,3 +27,16 @@ def test_empty_rule_set_renders_a_valid_header():
     assert text.startswith("# Constitution v1 · format 1 · 2026-09-14 · 0 rules\n<!-- Generated.")
     assert "## Rules\n" in text
     assert parse_constitution(text) == []
+
+
+def test_cli_preview_shows_the_next_render_and_writes_nothing(ws):
+    before = (ws / "constitution.md").read_text()
+    assert run("render", workspace=ws).stdout == before
+
+    conn = connect(ws)
+    conn.execute("UPDATE preferences SET status = 'retired' WHERE id = 1")
+    conn.commit()
+    out = run("render", workspace=ws).stdout
+    assert out.startswith("# Constitution v2 ") and "- Keep the note under 300" not in out
+    assert (ws / "constitution.md").read_text() == before
+    assert conn.execute("SELECT COUNT(*) FROM constitutions").fetchone()[0] == 1

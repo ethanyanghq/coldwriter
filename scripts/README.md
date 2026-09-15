@@ -63,13 +63,13 @@ Input, the Stage B result (example: `tests/fixtures/reconcile.json`):
 
 Steps, in order:
 
-1. Validate. Every id in `support`, `contradict`, and `evidence` is an unlearned edit; every `existing.id`, `merge.keep`, `merge.retire` exists and is not retired. Any failure: exit 1, nothing written.
+1. Validate. Every id in `support`, `contradict`, and `evidence` is an unlearned edit and not an `untouched` one (an untouched draft is never evidence for or against a rule); every `existing.id`, `merge.keep`, `merge.retire` exists and is not retired. Any failure: exit 1, nothing written.
 2. Counts. `support_count += len(support)`, `contradiction_count += len(contradict)`, `evidence_edit_ids` extended with both.
 3. New rules. Dedupe the statement (case-insensitive) against all rules including retired. A match on a retired rule is skipped unless `evidence` spans at least 4 distinct edits, in which case it is inserted and marked `re-proposed` in the changelog. Insert as `candidate`, `source=learned`, `support_count=len(evidence)`. In `approve` mode insert as `active`, `source=history`, `support_count=max(2, len(evidence))`; the skill has already removed the rules the user dropped.
-4. Lifecycle. `candidate` becomes `active` when `support_count >= 3 and support_count > 2 * contradiction_count`. `active` becomes `retired` with `retired_reason="contradicted by edits <ids>"` when `contradiction_count >= support_count`, evaluated only for rules that were active before this run.
+4. Lifecycle. `candidate` becomes `active` when `support_count >= 3 and support_count > 2 * contradiction_count`; rules inserted in step 3 are eligible. `active` becomes `retired` with `retired_reason="contradicted by edits <ids>"` (the ids from this run's `contradict`) when `contradiction_count >= support_count`, evaluated only for rules that were active before this run.
 5. Merges. Retire `retire` with `retired_reason="merged into #<keep>"` and add its `support_count` to `keep`.
 6. Set `learned_at` on every edit in the batch, untouched ones included.
-7. Render. Insert the `constitutions` row (parent is the previous sha) and the `learn_runs` row with the changelog as `summary`. If the render is unchanged, no constitution row is inserted and the run records the existing sha.
+7. Render. Insert the `constitutions` row (parent is the previous sha) and the `learn_runs` row with the changelog as `summary`. If the render is unchanged, no constitution row is inserted and the run records the existing sha. A render is unchanged when everything below its header line (which carries the version and date) matches the latest version.
 
 Changelog, printed and stored:
 
@@ -79,7 +79,7 @@ Changelog, printed and stored:
     new        #51 [candidate] At most one sentence about yourself  (evidence 2)
     merged     #31 -> #12
 
-Mean distance is over the batch's non-scratch edits.
+Mean distance is over the batch's non-scratch edits, `n/a` when there are none. A rule inserted and activated in the same run appears once, as `new #<id> [active]`; a re-proposed one as `(evidence <n>, re-proposed)`. The changelog is one header line when nothing changed.
 
 ### status
 
@@ -90,7 +90,7 @@ Mean distance is over the batch's non-scratch edits.
     curve          v1 0.62 (12)  v2 0.48 (15)  v3 0.31 (22)
     runs           3, last 2026-09-12T10:02:11Z
 
-`curve` is `v<version> <mean_edit_distance> (<n_edits>)` from `v_learning_curve`. `pipeline` and `sent this week` come from the consumer's views and are omitted when those views do not exist.
+`curve` is `v<version> <mean_edit_distance> (<n_edits>)` from `v_learning_curve`, `none` when empty; `runs` is `0` before the first run. `pipeline` and `sent this week` come from the consumer's views and are omitted when those views do not exist.
 
 ## queue.py
 
