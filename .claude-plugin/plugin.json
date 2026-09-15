@@ -1,6 +1,6 @@
 {
   "name": "coldwriter",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "LinkedIn coffee-chat notes drafted in your voice and learned from your edits. Never sends, never holds credentials.",
   "author": { "name": "Ethan Yang" },
   "license": "MIT",

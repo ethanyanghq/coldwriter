@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.1
+
+- `draft` and `learn` run on Opus regardless of the session model.
+- Contact URLs are normalized without `www.`, so both forms of a profile URL are one contact.
+- A workspace never lives inside the plugin checkout; `make guard` fails if one does.
+
 ## 0.1.0
 
 First release.
