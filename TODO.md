@@ -12,10 +12,10 @@ every script command is `scripts/README.md`; change it before changing a script 
 - [x] `tests/test_diff.py`: identical is 0, disjoint is 1.0, one replaced word is one `replace` hunk
 
 ### render.py
-- [ ] `render_constitution(rules, examples, version, date)`: header line, generated comment, `## Rules`, one `## When <condition>` per distinct condition, `## Examples` with the two most recent finals
-- [ ] `parse_constitution(text)` returning `[(statement, condition)]`, skipping Examples
+- [x] `render_constitution(rules, examples, version, date)`: header line, generated comment, `## Rules`, one `## When <condition>` per distinct condition, `## Examples` with the two most recent finals
+- [x] `parse_constitution(text)` returning `[(statement, condition)]`, skipping Examples
 - [ ] CLI preview (reads the db, writes nothing)
-- [ ] `tests/test_render.py`: render then parse round-trips `tests/fixtures/constitution-v7.md`; an empty rule set renders a valid header
+- [x] `tests/test_render.py`: render then parse round-trips `tests/fixtures/constitution-v7.md`; an empty rule set renders a valid header
 
 ## 2. db.py (learn core and workspace)
 
