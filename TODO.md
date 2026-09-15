@@ -57,8 +57,8 @@ every script command is `scripts/README.md`; change it before changing a script 
 - [x] `.claude-plugin/marketplace.json` so `/plugin marketplace add <owner>/coldwriter` resolves a single-plugin repo (verify with `claude plugin validate`)
 - [x] README: recommended MCP servers and the suggested `.mcp.json`
 - [ ] README: the learning-curve SVG from real data (run `/coldwriter:status --chart` in a workspace after a few learn runs, copy `learning-curve.svg` in, link it)
-- [ ] Manual smoke test: `claude --plugin-dir .` against `.workspace/` with a real MCP capture (needs the LinkedIn MCP server signed in; see README)
-- [ ] Accept the trust dialog here once so `.claude/settings.json` applies
+- [x] Manual smoke test: `claude --plugin-dir .` against `.workspace/` with a real MCP capture (init, capture, draft, review, learn, status ran on 2026-09-15; `send --contact` and `sent` are exercised by your first real send)
+- [x] Accept the trust dialog here once so `.claude/settings.json` applies
 - [x] First push: confirm `claude plugin validate` runs without login in CI
 - [x] CHANGELOG 0.1.0
 - [ ] `claude plugin tag --push` after the smoke test (dry run passes; the tag is `coldwriter--v0.1.0`)

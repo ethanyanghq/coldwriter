@@ -7,7 +7,7 @@ argument-hint: "[<id> ok | <id> <instruction> | <id> leave it ...]"
 
 # review
 
-No arguments: the user has edited `queue.md`. Run it and show the lines:
+No arguments: the user has edited `queue.md`. Run it and show its lines verbatim. Do not read `queue.md` afterwards: the script re-renders it and reviewed contacts drop out, so an empty queue is the normal result.
 
     python3 ${CLAUDE_PLUGIN_ROOT}/scripts/queue.py review
 
