@@ -9,6 +9,7 @@ This directory is a Coldwriter workspace. It is private and is never a git repos
 
 ## Files
 
+- Run the Coldwriter scripts from this directory; they take the workspace from the current directory. Never `cd` into the plugin.
 - `queue.md` and `db/` are written only by the Coldwriter scripts. Never edit them directly; pass text to the scripts.
 - `constitution.md` is a render of the database. Never edit it; use `/coldwriter:prefer`.
 - `me/` belongs to the user: resume, past notes. `me/_profile.md` and `me/corrections.md` are written by the skills.

@@ -43,14 +43,14 @@ every script command is `scripts/README.md`; change it before changing a script 
 
 ## 4. Skills (replace the eight stubs)
 
-- [ ] **init**: script call; the "tell me about yourself" prompt; read `me/` (PDFs included); write `me/_profile.md`, facts only; past notes go to `db.py history`, then learn in approval mode, keep or drop one rule at a time
-- [ ] **capture**: `get_person_profile` with the four sections, one URL per call in the order given, normalize to profile JSON, `queue.py capture`. Name no other LinkedIn tool: `make guard` greps for them
-- [ ] **draft**: `queue.py draft`, one note per target obeying the constitution, a hook only on a genuine match, sources cited, `queue.py add`
-- [ ] **review**: `queue.py review`; the conversational form maps to `--contact` calls
-- [ ] **send**: list, then per contact `send --contact`, wait for `y` / `skip` / `edited: ...`, call `sent` accordingly
-- [ ] **prefer**: one script call
-- [ ] **learn**: emit, Stage A per batch of at most 25 edits, Stage B once (merges first if the render exceeds 80 lines), apply. The observation and reconcile JSON shapes and the support and contradiction definitions live here. Suggest running at 15 or more unlearned edits; never refuse
-- [ ] **status**: one script call, `--chart` passed through
+- [x] **init**: script call; the "tell me about yourself" prompt; read `me/` (PDFs included); write `me/_profile.md`, facts only; past notes go to `db.py history`, then learn in approval mode, keep or drop one rule at a time
+- [x] **capture**: `get_person_profile` with the four sections, one URL per call in the order given, normalize to profile JSON, `queue.py capture`. Name no other LinkedIn tool: `make guard` greps for them
+- [x] **draft**: `queue.py draft`, one note per target obeying the constitution, a hook only on a genuine match, sources cited, `queue.py add`
+- [x] **review**: `queue.py review`; the conversational form maps to `--contact` calls
+- [x] **send**: list, then per contact `send --contact`, wait for `y` / `skip` / `edited: ...`, call `sent` accordingly
+- [x] **prefer**: one script call
+- [x] **learn**: emit, Stage A per batch of at most 25 edits, Stage B once (merges first if the render exceeds 80 lines), apply. The observation and reconcile JSON shapes and the support and contradiction definitions live here. Suggest running at 15 or more unlearned edits; never refuse
+- [x] **status**: one script call, `--chart` passed through
 
 ## 5. Release
 
