@@ -1,6 +1,7 @@
 ---
 name: learn
 description: Turn your reviewed edits into rule changes and render a new constitution version.
+model: opus
 ---
 
 # learn

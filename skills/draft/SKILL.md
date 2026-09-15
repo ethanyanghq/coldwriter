@@ -1,6 +1,7 @@
 ---
 name: draft
 description: Write one connection note for every queued contact, following the constitution.
+model: opus
 argument-hint: "[--redraft <id>]"
 ---
 
