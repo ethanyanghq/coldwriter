@@ -1,4 +1,5 @@
 from conftest import FIXTURES, connect, run
+
 from render import parse_constitution, render_constitution
 
 FIXTURE = FIXTURES / "constitution-v7.md"

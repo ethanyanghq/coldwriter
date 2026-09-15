@@ -45,6 +45,13 @@ def fail(message, code=1):
     sys.exit(code)
 
 
+def load_json(text, what):
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError as e:
+        fail(f"{what} is not valid JSON: {e}")
+
+
 def connect(workspace, create=False):
     """The workspace database. Without create, a missing one is exit 2."""
     path = Path(workspace) / "db" / "outreach.sqlite"
@@ -570,10 +577,7 @@ def main():
     elif args.command == "learn" and args.stage == "emit":
         learn_emit(conn, args.domain)
     elif args.command == "learn":
-        try:
-            reconcile = json.loads(read_arg(args.reconcile))
-        except json.JSONDecodeError as e:
-            fail(f"reconcile is not valid JSON: {e}")
+        reconcile = load_json(read_arg(args.reconcile), "reconcile")
         learn_apply(conn, args.workspace, args.domain, reconcile, args.mode)
     elif args.command == "status":
         status(conn, args.workspace, args.domain, args.chart)

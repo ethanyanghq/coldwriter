@@ -31,15 +31,15 @@ every script command is `scripts/README.md`; change it before changing a script 
 
 ## 3. queue.py (outreach consumer)
 
-- [ ] URL normalization: lowercase, https, no query, no fragment, no trailing slash
-- [ ] `capture`: exists vs captured; missing `name` exits 1
-- [ ] `draft [--redraft]`: targets query, five exemplars newest first, profile and corrections files or null
-- [ ] `add`: insert draft, re-render queue
-- [ ] `render`: `queue.md` from `v_queue`, exact H2/H3 format, `0 waiting` case
-- [ ] `review`: file parser (H2 opens a contact, only three H3s), `ok` / text / empty; `wrong:` lines appended to `me/corrections.md`; unknown id reported on stderr and skipped; `--contact --final --note` goes through the same insert
-- [ ] `send`, `send --contact` (pbcopy and open with print fallbacks), `sent [--edited]` with final_text write-back, distance recompute, `learned_at` cleared
-- [ ] `tests/test_queue.py`: capture dedupe; draft targets exclude reviewed and sent; review of `tests/fixtures/queue.md` yields ok, edited, untouched and one corrections line; `sent --edited` clears `learned_at`
-- [ ] `tests/test_pipeline.py`: golden path with no model and no LinkedIn: init, capture, add, review, learn apply, status
+- [x] URL normalization: lowercase, https, no query, no fragment, no trailing slash
+- [x] `capture`: exists vs captured; missing `name` exits 1
+- [x] `draft [--redraft]`: targets query, five exemplars newest first, profile and corrections files or null
+- [x] `add`: insert draft, re-render queue
+- [x] `render`: `queue.md` from `v_queue`, exact H2/H3 format, `0 waiting` case
+- [x] `review`: file parser (H2 opens a contact, only three H3s), `ok` / text / empty; `wrong:` lines appended to `me/corrections.md`; unknown id reported on stderr and skipped; `--contact --final --note` goes through the same insert
+- [x] `send`, `send --contact` (pbcopy and open with print fallbacks), `sent [--edited]` with final_text write-back, distance recompute, `learned_at` cleared
+- [x] `tests/test_queue.py`: capture dedupe; draft targets exclude reviewed and sent; review of `tests/fixtures/queue.md` yields ok, edited, untouched and one corrections line; `sent --edited` clears `learned_at`
+- [x] `tests/test_pipeline.py`: golden path with no model and no LinkedIn: init, capture, add, review, learn apply, status
 
 ## 4. Skills (replace the eight stubs)
 

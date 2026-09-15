@@ -1,6 +1,7 @@
 import json
 
 from conftest import run
+
 from diff import distance, hunks
 
 

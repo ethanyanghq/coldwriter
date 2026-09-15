@@ -11,3 +11,6 @@ select = ["E", "F", "W", "I", "UP", "B"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["scripts"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["db", "diff", "render", "queue"]

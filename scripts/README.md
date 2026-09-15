@@ -17,8 +17,8 @@ and never write to the workspace database or `queue.md` themselves. This file is
 - Constitution sha: `sha256(text)[:16]` of the rendered file.
 - Edit distance: `1 - difflib.SequenceMatcher(None, draft, final, autojunk=False).ratio()` over characters. `0` is untouched, `1.0` is from scratch.
 - Hunks: `SequenceMatcher` opcodes over whitespace-split words, `equal` dropped, each `{"op": "replace|delete|insert", "original": "...", "replacement": "..."}`.
-- Layering. `db.py`, `diff.py`, `render.py` are the learn core: they never read `contact_id` and know nothing about LinkedIn. `queue.py` is the outreach consumer and imports its helpers (`connect`, `now`, `read_arg`, the render call) from `db.py`. The one place the core sees consumer data is `v_context_labels`, a view the consumer defines and the core joins by `(domain, context_ref)`.
-- Each write happens in one function. Every command that changes preferences re-renders the constitution; every command that changes drafts or edits re-renders `queue.md`.
+- Layering. `db.py`, `diff.py`, `render.py` are the learn core: they never read `contact_id` and know nothing about LinkedIn. `queue.py` is the outreach consumer and imports its helpers (`connect`, `fail`, `latest_constitution`, `load_json`, `now`, `read_arg`) from `db.py`. The one place the core sees consumer data is `v_context_labels`, a view the consumer defines and the core joins by `(domain, context_ref)`.
+- Each write happens in one function. Every command that changes preferences re-renders the constitution; `queue.py add` and `review` re-render `queue.md`.
 
 ## db.py
 
@@ -100,7 +100,7 @@ Mean distance is over the batch's non-scratch edits, `n/a` when there are none. 
 | `draft [--redraft ID]` | Emits drafting context for every contact that has no `edits` row and is not `sent`; with `--redraft`, for that contact only (exit 1 if it has an `edits` row). Writes nothing. | JSON below |
 | `add --contact ID --text TEXT [--sources JSON]` | Inserts a draft (`context_ref=contact:<id>`, current constitution sha, `sources_json` default `[]`). Re-renders `queue.md`. | `#<draft_id> draft for #<id> · <n> chars` |
 | `review [--contact ID --final TEXT [--note TEXT]]` | Without options, parses `<workspace>/queue.md`. With `--contact`, records one contact the same way. Re-renders `queue.md`. | one line per contact: `#<id> ok`, `#<id> edited · distance <d>`, `#<id> untouched` |
-| `send` | Lists what is ready. | `sent this week <n>`, then `#<id> <name> · <url>` per `approved` contact, oldest first |
+| `send` | Lists what is ready. | `sent this week <n>`, then `#<id> <name> · <url>` per `approved` contact, lowest id first |
 | `send --contact ID` | Copies the final text to the clipboard (`pbcopy`; else prints `clipboard unavailable`), opens the profile URL (`open`, then `xdg-open`; else prints the URL), prints the note. | the note text, then `<n> chars` |
 | `sent --contact ID [--edited TEXT]` | With `--edited`, overwrites `edits.final_text`, recomputes the distance against its draft, and clears `learned_at`. Inserts the `sends` row. Contact not `approved`: exit 1. | `#<id> sent · <n> chars` |
 | `render` | Rewrites `queue.md` from `v_queue`. | `queue.md · <n> waiting` |
@@ -130,7 +130,7 @@ There is no "skip" command: skipping a contact in `send` is not calling `sent`.
 | any other text | `final_text` = that text, distance computed against the newest draft |
 | empty | untouched: no row, the contact stays in the queue |
 
-The note is stored verbatim as `reason_text`. If a line of the note starts with `wrong:`, the text after it is appended to `me/corrections.md` as `- <text>`. A contact id that is not in `v_queue` is reported on stderr and skipped. Example: `tests/fixtures/queue.md`.
+The note is stored verbatim as `reason_text`. If a line of the note starts with `wrong:` (any case), the text after it is appended to `me/corrections.md` as `- <text>`. The edit carries the draft's constitution sha, since the learning curve measures the version that produced the draft. A contact id that is not in `v_queue` is reported on stderr and skipped (with `--contact`, that is exit 1). No `queue.md` yet: exit 1. Example: `tests/fixtures/queue.md`.
 
 ## Formats
 
