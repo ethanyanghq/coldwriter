@@ -1,0 +1,10 @@
+# Starting rules. /coldwriter:init inserts each bullet as an active preference
+# (source 'seed'). Parsed by scripts/db.py without a YAML library: only lines
+# beginning with "- " count, so keep it a flat list.
+- Keep the note under 300 characters.
+- No em dashes.
+- Use their first name only; never their title.
+- One question, at the end, answerable in two minutes.
+- One specific detail about them that isn't in their headline.
+- No adjectives about their work ("impressive", "amazing").
+- Never "I'd love to connect", "came across your profile", "pick your brain", "hope this finds you well".

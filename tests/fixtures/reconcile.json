@@ -1,0 +1,13 @@
+{
+  "existing": [
+    {"id": 6, "support": [41, 47], "contradict": [], "note": "both finals cut an adjective before 'work'"},
+    {"id": 2, "support": [], "contradict": [41, 47, 52], "note": "the user keeps putting em dashes back"}
+  ],
+  "new": [
+    {"statement": "Never open with the recipient's job title.", "condition": null, "evidence": [41, 52, 58]},
+    {"statement": "Ask about a decision they made, not a topic.", "condition": "the recipient is a founder", "evidence": [47, 52]}
+  ],
+  "merge": [
+    {"keep": 6, "retire": 9, "reason": "same rule, narrower wording"}
+  ]
+}

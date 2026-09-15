@@ -1,0 +1,25 @@
+# Private. Never committed.
+DESIGN.md
+.claude/rules/private.md
+.claude/settings.local.json
+.env
+
+# Workspace files. A workspace is created by /coldwriter:init and is never a git
+# repo; these only guard against one being created inside the plugin checkout.
+/.workspace/
+/me/
+/constitution.md
+/queue.md
+/learning-curve.svg
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+
+# Tooling
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.venv/
+evals/results/
+.DS_Store

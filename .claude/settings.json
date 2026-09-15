@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(make:*)",
+      "Bash(python3:*)",
+      "Bash(uv run:*)",
+      "Bash(uvx ruff:*)",
+      "Bash(sqlite3:*)",
+      "Bash(claude plugin validate:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git ls-files:*)"
+    ]
+  }
+}

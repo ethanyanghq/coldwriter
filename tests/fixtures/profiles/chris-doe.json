@@ -1,0 +1,18 @@
+{
+  "name": "Chris Doe",
+  "headline": "Senior PM, Google",
+  "location": "Mountain View, CA",
+  "company": "Google",
+  "title": "Senior Product Manager",
+  "about": "I run internal tooling for a few thousand engineers. Before that, two years on Search infra. Cornell '18.",
+  "experience": [
+    {"title": "Senior Product Manager", "company": "Google", "start": "2021-03", "end": null, "description": "Internal developer tooling."},
+    {"title": "Product Manager", "company": "Google", "start": "2018-08", "end": "2021-03", "description": "Search infrastructure."}
+  ],
+  "education": [
+    {"school": "Cornell University", "degree": "BS", "field": "Information Science", "start": "2014", "end": "2018"}
+  ],
+  "posts": [
+    {"id": "7f3a1c", "date": "2026-09-02", "text": "We killed our internal ticket queue last quarter. Engineers file a one-line request in Slack; a PM triages within a day. Throughput doubled and nobody misses the form."}
+  ]
+}
