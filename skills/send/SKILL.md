@@ -6,6 +6,8 @@ disable-model-invocation: true
 
 # send
 
+Notes approved in conversation are sent as part of `review`; this is for the rest.
+
 1. List what is ready and show it:
 
        python3 ${CLAUDE_PLUGIN_ROOT}/scripts/queue.py send

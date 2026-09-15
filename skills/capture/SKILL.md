@@ -10,7 +10,7 @@ URLs: $ARGUMENTS
 
 For each URL, in the order given, one at a time:
 
-1. Read the profile with the MCP tool `get_person_profile`, sections `experience, education, about, posts`. Only that tool, only these URLs. Never search, never read suggested profiles, never call a tool that writes to LinkedIn. If the tool is unavailable, say so and stop; do not paste or guess a profile.
+1. Say `reading <url>, this takes a minute`, then read the profile with the MCP tool `get_person_profile`, sections `experience, education, about, posts`. Only that tool, only these URLs. Never search, never read suggested profiles, never call a tool that writes to LinkedIn. If the tool is unavailable, say so and stop; do not paste or guess a profile.
 
 2. Map the response to this shape. Everything but `name` may be null; unknown fields are dropped; keep every text verbatim, do not summarize. The server returns scraped page text, so split it yourself.
 
@@ -28,4 +28,4 @@ For each URL, in the order given, one at a time:
 
    Show the script's line: `#<id> captured <name>` or `#<id> exists <name>`.
 
-When all URLs are done, say the next step is `/coldwriter:draft`.
+When all URLs are done, invoke the `coldwriter:draft` skill so every newly captured contact gets its note in the same turn.

@@ -248,7 +248,7 @@ def test_review_of_the_fixture_queue(ws):
     )
     d = distance(drafts[18], ada_final)
     out = run("queue", "review", workspace=ws).stdout.splitlines()
-    assert out == ["#17 ok", f"#18 edited · distance {d:.2f}", "#19 untouched"]
+    assert out == ["#17 ok", f"#18 edited · distance {d:.2f}", "#19 untouched", "unlearned 2 edits"]
 
     conn = connect(ws)
     edits = {r["contact_id"]: r for r in conn.execute("SELECT * FROM edits")}
@@ -281,10 +281,10 @@ def test_review_skips_ids_not_in_the_queue(ws):
 
 def test_review_one_contact_goes_through_the_same_path(ws):
     load_fixture_queue(ws)
-    assert review(ws, 19, "OK", "fine").stdout.strip() == "#19 ok"
+    assert review(ws, 19, "OK", "fine").stdout.splitlines() == ["#19 ok", "unlearned 1 edits"]
     row = connect(ws).execute("SELECT * FROM edits WHERE contact_id = 19").fetchone()
     assert (row["edit_distance"], row["reason_text"]) == (0.0, "fine")
-    assert review(ws, 17, "").stdout.strip() == "#17 untouched"
+    assert review(ws, 17, "").stdout.splitlines()[0] == "#17 untouched"
     proc = review(ws, 19, "ok", expect=1)
     assert proc.stderr.strip() == "#19 not in queue"
     assert "## [17]" in (ws / "queue.md").read_text()

@@ -21,6 +21,8 @@ argument-hint: "[--redraft <id>]"
 
        python3 ${CLAUDE_PLUGIN_ROOT}/scripts/queue.py add --contact <id> --text "<note>" --sources '["post 7f3a1c", "hook: Cornell"]'
 
-   Show each `#<draft_id> draft for #<id> · <n> chars` line. Then tell the user to open `queue.md`, fill in FINAL (`ok`, or the text they want) and note for each contact, and run `/coldwriter:review`.
+   Show each `#<draft_id> draft for #<id> · <n> chars` line, followed by the note itself in full.
+
+4. Ask for their review here: for each contact, reply with the id and `ok`, the note they would send instead, or an instruction. Mention that they can also edit `queue.md` and run `/coldwriter:review`. When they reply, invoke the `coldwriter:review` skill with their reply as its arguments.
 
 Never edit `queue.md` yourself.

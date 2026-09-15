@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- `capture` drafts right after reading, and `draft` shows each note in chat and asks for the review there. `queue.md` stays as the batch path.
+- `review` in conversation sends an approved note straight away: clipboard, profile open, `y` to record. A rewrite from an instruction changes only what was asked; a note the user types themselves is stored verbatim.
+- `queue.py review` ends with `unlearned <n> edits`; the skill suggests `learn` at 15.
+- `capture` says it is reading before the slow profile call.
 - `queue.py discard --contact ID | --all` and the `discard` skill remove unreviewed drafts and put those contacts back to `queued`. Reviewed drafts are never touched.
 - The `draft` skill asks before writing when the workspace has no profile and no exemplars.
 

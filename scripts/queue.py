@@ -272,6 +272,10 @@ def review(conn, workspace, contact_id, final, note):
     results = [review_contact(conn, workspace, *item) for item in items]
     conn.commit()
     render_queue(conn, workspace)
+    n = conn.execute(
+        "SELECT COUNT(*) FROM edits WHERE domain = ? AND learned_at IS NULL", (DOMAIN,)
+    ).fetchone()[0]
+    print(f"unlearned {n} edits")
     return results
 
 
