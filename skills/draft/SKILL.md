@@ -13,6 +13,8 @@ argument-hint: "[--redraft <id>]"
 
    `targets` empty: say there is nothing to draft and stop.
 
+   `exemplars` empty and `profile` null: the workspace holds nothing of the user's voice yet. Say so and ask whether to draft anyway or to fill `me/` and rerun `/coldwriter:init` first. Drafts written this way can be thrown away with `/coldwriter:discard --all`.
+
 2. For each target, write one note that obeys every rule in `constitution.text`. The exemplars show the user's voice; weigh `final` over `draft`. `profile` is who the user is and what they want. `corrections` are facts the user has had to fix; never repeat them. Anchor the note in one specific thing from the recipient's profile (a post, a role, a project), not their headline. Use a hook from the user's profile only when the recipient's profile genuinely shares it (same school, same past employer); if it is a stretch, leave it out. As you write, list what you drew on: post ids, experience entries, the hook.
 
 3. Record each note:

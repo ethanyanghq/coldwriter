@@ -12,7 +12,7 @@ A LinkedIn coffee-chat engine that runs inside Claude Code. Point it at profiles
 
 ## How it works
 
-`/coldwriter:capture <url>` reads a profile. `/coldwriter:draft` writes one note per contact into `queue.md`. You edit the file. `/coldwriter:review` records what you changed. `/coldwriter:send` puts each note on your clipboard and opens the profile. `/coldwriter:learn` turns your edits into rules and renders them as `constitution.md`, which the next drafts follow. `/coldwriter:prefer` adds a rule by hand. `/coldwriter:status` shows the pipeline and the learning curve.
+`/coldwriter:capture <url>` reads a profile. `/coldwriter:draft` writes one note per contact into `queue.md`. You edit the file. `/coldwriter:review` records what you changed. `/coldwriter:discard` throws away drafts you have not reviewed, so `draft` starts them over. `/coldwriter:send` puts each note on your clipboard and opens the profile. `/coldwriter:learn` turns your edits into rules and renders them as `constitution.md`, which the next drafts follow. `/coldwriter:prefer` adds a rule by hand. `/coldwriter:status` shows the pipeline and the learning curve.
 
 ## Install
 

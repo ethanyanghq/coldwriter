@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- `queue.py discard --contact ID | --all` and the `discard` skill remove unreviewed drafts and put those contacts back to `queued`. Reviewed drafts are never touched.
+- The `draft` skill asks before writing when the workspace has no profile and no exemplars.
+
 ## 0.1.1
 
 - `draft` and `learn` run on Opus regardless of the session model.

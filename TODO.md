@@ -37,6 +37,7 @@ every script command is `scripts/README.md`; change it before changing a script 
 - [x] `add`: insert draft, re-render queue
 - [x] `render`: `queue.md` from `v_queue`, exact H2/H3 format, `0 waiting` case
 - [x] `review`: file parser (H2 opens a contact, only three H3s), `ok` / text / empty; `wrong:` lines appended to `me/corrections.md`; unknown id reported on stderr and skipped; `--contact --final --note` goes through the same insert
+- [x] `discard --contact | --all`: delete unreviewed drafts, contact back to `queued`, reviewed contact exits 1, re-render
 - [x] `send`, `send --contact` (pbcopy and open with print fallbacks), `sent [--edited]` with final_text write-back, distance recompute, `learned_at` cleared
 - [x] `tests/test_queue.py`: capture dedupe; draft targets exclude reviewed and sent; review of `tests/fixtures/queue.md` yields ok, edited, untouched and one corrections line; `sent --edited` clears `learned_at`
 - [x] `tests/test_pipeline.py`: golden path with no model and no LinkedIn: init, capture, add, review, learn apply, status
@@ -47,6 +48,7 @@ every script command is `scripts/README.md`; change it before changing a script 
 - [x] **capture**: `get_person_profile` with the four sections, one URL per call in the order given, normalize to profile JSON, `queue.py capture`. Name no other LinkedIn tool: `make guard` greps for them
 - [x] **draft**: `queue.py draft`, one note per target obeying the constitution, a hook only on a genuine match, sources cited, `queue.py add`
 - [x] **review**: `queue.py review`; the conversational form maps to `--contact` calls
+- [x] **discard**: one script call per form; never touches reviewed drafts
 - [x] **send**: list, then per contact `send --contact`, wait for `y` / `skip` / `edited: ...`, call `sent` accordingly
 - [x] **prefer**: one script call
 - [x] **learn**: emit, Stage A per batch of at most 25 edits, Stage B once (merges first if the render exceeds 80 lines), apply. The observation and reconcile JSON shapes and the support and contradiction definitions live here. Suggest running at 15 or more unlearned edits; never refuse

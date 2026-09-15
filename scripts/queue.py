@@ -84,6 +84,14 @@ def capture(conn, url, profile):
     print(f"#{cur.lastrowid} captured {name}")
 
 
+def unreviewed(conn, contact_id):
+    """The contact, or exit 1 if it already has an edits row."""
+    row = contact(conn, contact_id)
+    if conn.execute("SELECT 1 FROM edits WHERE contact_id = ?", (contact_id,)).fetchone():
+        fail(f"#{contact_id} already reviewed")
+    return row
+
+
 def targets(conn, redraft):
     """Contacts needing a draft: no edits row and not sent, or the one asked for."""
     if redraft is None:
@@ -91,10 +99,7 @@ def targets(conn, redraft):
             "SELECT * FROM contacts c WHERE status != 'sent'"
             " AND NOT EXISTS (SELECT 1 FROM edits e WHERE e.contact_id = c.id) ORDER BY id"
         ).fetchall()
-    row = contact(conn, redraft)
-    if conn.execute("SELECT 1 FROM edits WHERE contact_id = ?", (redraft,)).fetchone():
-        fail(f"#{redraft} already reviewed")
-    return [row]
+    return [unreviewed(conn, redraft)]
 
 
 def draft(conn, workspace, redraft):
@@ -147,6 +152,31 @@ def add(conn, workspace, contact_id, text, sources):
     conn.commit()
     render_queue(conn, workspace)
     print(f"#{cur.lastrowid} draft for #{contact_id} · {len(text)} chars")
+
+
+def discard(conn, workspace, contact_id):
+    """Delete the unreviewed drafts of one contact, or of every contact when contact_id is None."""
+    if contact_id is None:
+        ids = [
+            r[0]
+            for r in conn.execute(
+                "SELECT DISTINCT contact_id FROM drafts d WHERE contact_id IS NOT NULL"
+                " AND NOT EXISTS (SELECT 1 FROM edits e WHERE e.contact_id = d.contact_id)"
+                " ORDER BY contact_id"
+            )
+        ]
+    else:
+        ids = [unreviewed(conn, contact_id)["id"]]
+    for cid in ids:
+        n = conn.execute("DELETE FROM drafts WHERE contact_id = ?", (cid,)).rowcount
+        conn.execute(
+            "UPDATE contacts SET status = 'queued', updated_at = ?"
+            " WHERE id = ? AND status = 'drafted'",
+            (now(), cid),
+        )
+        print(f"#{cid} discarded {n} drafts")
+    conn.commit()
+    render_queue(conn, workspace)
 
 
 # --- queue.md ------------------------------------------------------------------------------
@@ -313,6 +343,10 @@ def main():
     p.add_argument("--contact", type=int, required=True)
     p.add_argument("--text", required=True)
     p.add_argument("--sources", default="[]")
+    p = commands.add_parser("discard", parents=[common])
+    which = p.add_mutually_exclusive_group(required=True)
+    which.add_argument("--contact", type=int)
+    which.add_argument("--all", action="store_true")
     p = commands.add_parser("review", parents=[common])
     p.add_argument("--contact", type=int)
     p.add_argument("--final", default="")
@@ -334,6 +368,8 @@ def main():
     elif args.command == "add":
         sources = load_json(read_arg(args.sources), "sources")
         add(conn, workspace, args.contact, read_arg(args.text), sources)
+    elif args.command == "discard":
+        discard(conn, workspace, args.contact)
     elif args.command == "review":
         results = review(conn, workspace, args.contact, read_arg(args.final), read_arg(args.note))
         if args.contact is not None and not results[0]:

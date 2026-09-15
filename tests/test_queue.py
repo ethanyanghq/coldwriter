@@ -191,6 +191,51 @@ def test_render_empty_queue(ws):
     assert (ws / "queue.md").read_text() == "# Queue · constitution v1 · 0 waiting\n"
 
 
+# --- discard -------------------------------------------------------------------------------
+
+
+def test_discard_removes_unreviewed_drafts_and_keeps_reviewed_ones(ws):
+    capture(ws, "https://linkedin.com/in/chrisdoe")
+    capture(ws, "https://linkedin.com/in/adanguyen", ADA)
+    capture(ws, "https://linkedin.com/in/samokafor", ADA)
+    add(ws, 1, "Hey Chris.")
+    review(ws, 1, "ok")
+    add(ws, 2, "Hi Ada.")
+    add(ws, 2, "Hi Ada, again.")
+
+    out = run("queue", "discard", "--contact", "2", workspace=ws).stdout
+    assert out.strip() == "#2 discarded 2 drafts"
+    conn = connect(ws)
+    assert conn.execute("SELECT COUNT(*) FROM drafts WHERE contact_id = 2").fetchone()[0] == 0
+    assert status(ws, 2) == "queued"
+    assert (ws / "queue.md").read_text() == "# Queue · constitution v1 · 0 waiting\n"
+    assert run("queue", "discard", "--contact", "3", workspace=ws).stdout.strip() == (
+        "#3 discarded 0 drafts"
+    )
+
+    proc = run("queue", "discard", "--contact", "1", workspace=ws, expect=1)
+    assert proc.stderr.strip() == "#1 already reviewed"
+    assert conn.execute("SELECT COUNT(*) FROM drafts WHERE contact_id = 1").fetchone()[0] == 1
+    assert status(ws, 1) == "approved"
+    proc = run("queue", "discard", "--contact", "99", workspace=ws, expect=1)
+    assert proc.stderr.strip() == "no contact #99"
+
+    out = json.loads(run("queue", "draft", workspace=ws).stdout)
+    assert [t["contact_id"] for t in out["targets"]] == [2, 3]
+
+
+def test_discard_all_leaves_reviewed_contacts_alone(ws):
+    load_fixture_queue(ws)
+    review(ws, 17, "ok")
+    out = run("queue", "discard", "--all", workspace=ws).stdout.splitlines()
+    assert out == ["#18 discarded 1 drafts", "#19 discarded 1 drafts"]
+    conn = connect(ws)
+    assert [r[0] for r in conn.execute("SELECT contact_id FROM drafts")] == [17]
+    assert [status(ws, c) for c in (17, 18, 19)] == ["approved", "queued", "queued"]
+    assert (ws / "queue.md").read_text() == "# Queue · constitution v1 · 0 waiting\n"
+    assert run("queue", "discard", "--all", workspace=ws).stdout == ""
+
+
 # --- review --------------------------------------------------------------------------------
 
 
