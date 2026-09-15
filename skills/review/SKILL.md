@@ -46,6 +46,6 @@ Run it and show its lines verbatim. Do not read `queue.md` afterwards: the scrip
 
 ## After either
 
-The script's last line is `unlearned <n> edits`. Show it. At 15 or more, suggest `/coldwriter:learn`; never insist.
+Show every line the review script prints, verbatim, including its last line `unlearned <n> edits`. At 15 or more, suggest `/coldwriter:learn`; never insist.
 
 The user sends every note by hand. Never call a tool that writes to LinkedIn. Never edit `queue.md` yourself.
