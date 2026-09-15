@@ -61,6 +61,6 @@ every script command is `scripts/README.md`; change it before changing a script 
 - [x] Accept the trust dialog here once so `.claude/settings.json` applies
 - [x] First push: confirm `claude plugin validate` runs without login in CI
 - [x] CHANGELOG 0.1.0
-- [ ] `claude plugin tag --push` after the smoke test (dry run passes; the tag is `coldwriter--v0.1.0`)
+- [x] `claude plugin tag --push` (tag `coldwriter--v0.1.0` is on origin; `/plugin marketplace add ethanyanghq/coldwriter` + `/plugin install coldwriter@coldwriter` verified from an empty directory)
 - [ ] Handles: `github.com/coldwriter` (free as of 2026-09-15), `@coldwriter` (free on Bluesky; X unchecked), a domain (`coldwriter.com` is registered and parked for sale; `.dev`, `.io`, `.app` have no DNS)
 - [x] Optional, after the skills exist: `evals/` cases for `claude plugin eval` (one case written; the command is early access and not enabled on this account, so it has not been run)
