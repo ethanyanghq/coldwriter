@@ -310,14 +310,14 @@ def fake_bin(tmp_path):
     return bin_dir
 
 
-def test_send_lists_approved_contacts_and_copies_the_note(ws, tmp_path):
+def test_open_lists_approved_contacts_and_copies_the_note(ws, tmp_path):
     capture(ws, "https://linkedin.com/in/chrisdoe")
     capture(ws, "https://linkedin.com/in/adanguyen", ADA)
     add(ws, 1, "Hey Chris, hit home.")
     add(ws, 2, "Hi Ada.")
     review(ws, 2, "ok")
     review(ws, 1, "ok")
-    assert run("queue", "send", workspace=ws).stdout.splitlines() == [
+    assert run("queue", "open", workspace=ws).stdout.splitlines() == [
         "sent this week 0",
         "#1 Chris Doe · https://linkedin.com/in/chrisdoe",
         "#2 Ada Nguyen · https://linkedin.com/in/adanguyen",
@@ -325,16 +325,16 @@ def test_send_lists_approved_contacts_and_copies_the_note(ws, tmp_path):
 
     bin_dir = fake_bin(tmp_path)
     env = dict(os.environ, PATH=str(bin_dir))
-    out = run("queue", "send", "--contact", "1", workspace=ws, env=env).stdout
+    out = run("queue", "open", "--contact", "1", workspace=ws, env=env).stdout
     assert out == "Hey Chris, hit home.\n20 chars\n"
     assert (bin_dir / "clip").read_text() == "Hey Chris, hit home."
     assert (bin_dir / "opened").read_text() == "https://linkedin.com/in/chrisdoe\n"
 
     env = dict(os.environ, PATH=str(tmp_path / "empty"))
-    out = run("queue", "send", "--contact", "1", workspace=ws, env=env).stdout
+    out = run("queue", "open", "--contact", "1", workspace=ws, env=env).stdout
     url = "https://linkedin.com/in/chrisdoe"
     assert out == f"clipboard unavailable\n{url}\nHey Chris, hit home.\n20 chars\n"
-    proc = run("queue", "send", "--contact", "99", workspace=ws, env=env, expect=1)
+    proc = run("queue", "open", "--contact", "99", workspace=ws, env=env, expect=1)
     assert proc.stderr.strip() == "no contact #99"
 
 
@@ -367,4 +367,34 @@ def test_sent_records_the_send_and_edited_writes_back(ws):
 
     proc = run("queue", "sent", "--contact", "1", workspace=ws, expect=1)
     assert proc.stderr.strip() == "#1 is sent, not approved"
-    assert run("queue", "send", workspace=ws).stdout == "sent this week 2\n"
+    assert run("queue", "open", workspace=ws).stdout == "sent this week 2\n"
+
+
+def test_unapprove_puts_the_draft_back_in_the_queue(ws):
+    load_fixture_queue(ws)
+    review(ws, 17, "Hey Chris, rewritten.", "too eager")
+    review(ws, 18, "ok")
+    run("queue", "sent", "--contact", "18", workspace=ws)
+
+    out = run("queue", "unapprove", "--contact", "17", workspace=ws).stdout
+    assert out.strip() == "#17 unapproved"
+    conn = connect(ws)
+    assert conn.execute("SELECT COUNT(*) FROM edits WHERE contact_id = 17").fetchone()[0] == 0
+    assert conn.execute("SELECT COUNT(*) FROM drafts WHERE contact_id = 17").fetchone()[0] == 1
+    assert status(ws, 17) == "drafted"
+    heads = [ln for ln in (ws / "queue.md").read_text().splitlines() if ln.startswith("## [")]
+    assert [h.split("]")[0] for h in heads] == ["## [17", "## [19"]
+    assert run("queue", "open", workspace=ws).stdout == "sent this week 1\n"
+    review(ws, 17, "ok")
+    assert status(ws, 17) == "approved"
+
+    proc = run("queue", "unapprove", "--contact", "18", workspace=ws, expect=1)
+    assert proc.stderr.strip() == "#18 is sent, not approved"
+    proc = run("queue", "unapprove", "--contact", "19", workspace=ws, expect=1)
+    assert proc.stderr.strip() == "#19 is drafted, not approved"
+
+    review(ws, 19, "ok")
+    run("db", "learn", "apply", "--reconcile", "{}", workspace=ws)
+    proc = run("queue", "unapprove", "--contact", "19", workspace=ws, expect=1)
+    assert proc.stderr.strip() == "#19 already learned"
+    assert status(ws, 19) == "approved"

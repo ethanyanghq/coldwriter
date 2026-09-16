@@ -10,15 +10,15 @@ Notes approved in conversation are sent as part of `review`; this is for the res
 
 1. List what is ready and show it:
 
-       python3 ${CLAUDE_PLUGIN_ROOT}/scripts/queue.py send
+       python3 ${CLAUDE_PLUGIN_ROOT}/scripts/queue.py open
 
    No contacts listed: stop.
 
 2. For each listed contact, in order:
 
-       python3 ${CLAUDE_PLUGIN_ROOT}/scripts/queue.py send --contact <id>
+       python3 ${CLAUDE_PLUGIN_ROOT}/scripts/queue.py open --contact <id>
 
-   The note is on the clipboard and the profile is open in the browser. Tell the user: click Connect, then Add a note, paste, and Send. Ask them to reply `y`, `skip`, or `edited: <the text you actually sent>`. Wait for the reply.
+   This copies the note to the clipboard and opens the profile in the browser; it sends nothing, so describe it as copying and opening. Tell the user: click Connect, then Add a note, paste, and Send. Ask them to reply `y`, `skip`, or `edited: <the text you actually sent>`. Wait for the reply.
 
    - `y`:
 
@@ -28,7 +28,7 @@ Notes approved in conversation are sent as part of `review`; this is for the res
 
          python3 ${CLAUDE_PLUGIN_ROOT}/scripts/queue.py sent --contact <id> --edited "<text>"
 
-   - `skip`: nothing. It stays approved for next time.
+   - `skip`: nothing. It stays approved for next time. To review it again instead, `/coldwriter:unapprove <id>`.
 
    Show the script's line and move to the next contact.
 

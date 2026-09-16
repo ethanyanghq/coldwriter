@@ -10,7 +10,7 @@ With arguments, the user is reviewing in conversation. With none, they have edit
 
 ## In conversation
 
-For each contact they mention, decide which of these their words are. A full note reads as a message to the recipient; an instruction reads as a request to you.
+For each contact they mention, decide which of these their words are. A full note reads as a message to the recipient; an instruction reads as a request to you. When unsure, treat it as an instruction: a wrong rewrite is shown and waits, while a wrongly recorded note goes straight to the clipboard.
 
 - `ok` (or "fine", "send it"): record the draft as is.
 
@@ -28,11 +28,15 @@ For each contact they mention, decide which of these their words are. A full not
 
 A fact they corrected goes in the note as `wrong: <fact>`, so the script adds it to `me/corrections.md`.
 
-Every recorded contact is now approved. Send it right away, one at a time:
+Every recorded contact is now approved. Hand it over right away, one at a time:
 
-    python3 ${CLAUDE_PLUGIN_ROOT}/scripts/queue.py send --contact <id>
+    python3 ${CLAUDE_PLUGIN_ROOT}/scripts/queue.py open --contact <id>
 
-The note is on the clipboard and the profile is open. Tell the user: click Connect, then Add a note, paste, and Send. Ask for `y`, `skip`, or `edited: <the text you actually sent>`, and wait.
+This copies the note to the clipboard and opens the profile; it sends nothing, so describe it as copying and opening. Start your message with what was recorded (`#18 recorded your text as the final` or `#18 recorded the rewrite`), so a misread is caught here. Then tell the user: click Connect, then Add a note, paste, and Send. Ask for `y`, `skip`, or `edited: <the text you actually sent>`, and wait.
+
+If they say what you recorded was an instruction, not their note: put it back and handle it as an instruction.
+
+    python3 ${CLAUDE_PLUGIN_ROOT}/scripts/queue.py unapprove --contact <id>
 
 - `y`: `python3 ${CLAUDE_PLUGIN_ROOT}/scripts/queue.py sent --contact <id>`
 - `edited: <text>`: `python3 ${CLAUDE_PLUGIN_ROOT}/scripts/queue.py sent --contact <id> --edited "<text>"`

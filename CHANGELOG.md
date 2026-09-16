@@ -8,6 +8,9 @@
 - `capture` says it is reading before the slow profile call.
 - `queue.py discard --contact ID | --all` and the `discard` skill remove unreviewed drafts and put those contacts back to `queued`. Reviewed drafts are never touched.
 - The `draft` skill asks before writing when the workspace has no profile and no exemplars.
+- `queue.py unapprove --contact ID` and the `unapprove` skill put an approved, unsent note back in the queue. A note already consumed by `learn` stays.
+- `queue.py send` is now `queue.py open`: it copies and opens, and the name no longer reads as an outward action to the permission classifier.
+- `review` in conversation treats an ambiguous reply as an instruction, and says what it recorded before the paste step, so a reply misread as the note is caught before sending.
 
 ## 0.1.1
 

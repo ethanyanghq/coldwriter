@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Outreach consumer: contacts, drafts, the review queue, and sending.
+"""Outreach consumer: contacts, drafts, the review queue, and the hand-off to the clipboard.
 
 Imports the learn core's helpers from db.py and is the only writer of queue.md.
 """
@@ -279,10 +279,10 @@ def review(conn, workspace, contact_id, final, note):
     return results
 
 
-# --- send, sent ----------------------------------------------------------------------------
+# --- open, sent, unapprove -----------------------------------------------------------------
 
 
-def send_list(conn):
+def ready(conn):
     print(f"sent this week {conn.execute('SELECT n FROM v_sends_this_week').fetchone()[0]}")
     rows = conn.execute(
         "SELECT id, name, linkedin_url FROM contacts WHERE status = 'approved' ORDER BY id"
@@ -291,7 +291,7 @@ def send_list(conn):
         print(f"#{r['id']} {r['name']} · {r['linkedin_url']}")
 
 
-def send_contact(conn, contact_id):
+def open_contact(conn, contact_id):
     row = contact(conn, contact_id)
     text = final_edit(conn, contact_id)["final_text"]
     if shutil.which("pbcopy"):
@@ -330,6 +330,23 @@ def sent(conn, contact_id, edited):
     print(f"#{contact_id} sent · {len(text)} chars")
 
 
+def unapprove(conn, workspace, contact_id):
+    """Delete an approved contact's final so its draft is back in the queue."""
+    row = contact(conn, contact_id)
+    if row["status"] != "approved":
+        fail(f"#{contact_id} is {row['status']}, not approved")
+    edit = final_edit(conn, contact_id)
+    if edit["learned_at"] is not None:
+        fail(f"#{contact_id} already learned")
+    conn.execute("DELETE FROM edits WHERE id = ?", (edit["id"],))
+    conn.execute(
+        "UPDATE contacts SET status = 'drafted', updated_at = ? WHERE id = ?", (now(), contact_id)
+    )
+    conn.commit()
+    render_queue(conn, workspace)
+    print(f"#{contact_id} unapproved")
+
+
 # --- CLI -----------------------------------------------------------------------------------
 
 
@@ -355,11 +372,13 @@ def main():
     p.add_argument("--contact", type=int)
     p.add_argument("--final", default="")
     p.add_argument("--note", default="")
-    p = commands.add_parser("send", parents=[common])
+    p = commands.add_parser("open", parents=[common])
     p.add_argument("--contact", type=int)
     p = commands.add_parser("sent", parents=[common])
     p.add_argument("--contact", type=int, required=True)
     p.add_argument("--edited")
+    p = commands.add_parser("unapprove", parents=[common])
+    p.add_argument("--contact", type=int, required=True)
     commands.add_parser("render", parents=[common])
     args = parser.parse_args()
 
@@ -378,13 +397,15 @@ def main():
         results = review(conn, workspace, args.contact, read_arg(args.final), read_arg(args.note))
         if args.contact is not None and not results[0]:
             sys.exit(1)
-    elif args.command == "send" and args.contact is None:
-        send_list(conn)
-    elif args.command == "send":
-        send_contact(conn, args.contact)
+    elif args.command == "open" and args.contact is None:
+        ready(conn)
+    elif args.command == "open":
+        open_contact(conn, args.contact)
     elif args.command == "sent":
         edited = read_arg(args.edited) if args.edited is not None else None
         sent(conn, args.contact, edited)
+    elif args.command == "unapprove":
+        unapprove(conn, workspace, args.contact)
     elif args.command == "render":
         print(f"queue.md · {render_queue(conn, workspace)} waiting")
 
