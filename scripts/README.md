@@ -14,7 +14,8 @@ and never write to the workspace database or `queue.md` themselves. This file is
 - stdout is the result. `queue.py draft` and `db.py learn emit` print JSON because the model consumes them; every other command prints short text lines. Errors are one line on stderr.
 - Exit codes: `0` done (an "already exists" is done), `1` bad input or failed validation with nothing written, `2` no workspace.
 - Timestamps are ISO 8601 UTC, `2026-09-14T20:28:00Z`. They are bookkeeping; nothing in the pipeline depends on them.
-- Constitution sha: `sha256(text)[:16]` of the rendered file.
+- Constitution sha: `sha256(text)[:16]` of the version's stored text. A new version exists only when the rules changed: when only `## Examples` moved, `constitution.md` is rewritten with the fresh examples under the latest version's header and no row is inserted.
+- Rule statements are compared ignoring case and a trailing `.` or `!`, wherever a duplicate is checked.
 - Edit distance: `1 - difflib.SequenceMatcher(None, draft, final, autojunk=False).ratio()` over characters. `0` is untouched, `1.0` is from scratch.
 - Hunks: `SequenceMatcher` opcodes over whitespace-split words, `equal` dropped, each `{"op": "replace|delete|insert", "original": "...", "replacement": "..."}`.
 - Layering. `db.py`, `diff.py`, `render.py` are the learn core: they never read `contact_id` and know nothing about LinkedIn. `queue.py` is the outreach consumer and imports its helpers (`connect`, `fail`, `latest_constitution`, `load_json`, `now`, `read_arg`) from `db.py`. The one place the core sees consumer data is `v_context_labels`, a view the consumer defines and the core joins by `(domain, context_ref)`.
@@ -26,7 +27,7 @@ and never write to the workspace database or `queue.md` themselves. This file is
 |---|---|---|
 | `init [--from PATH]` | Creates `me/` and `db/`, applies `db/schema.sql` (idempotent), writes `<workspace>/CLAUDE.md` from `templates/workspace-CLAUDE.md`, inserts each `seeds.yaml` bullet as an `active` preference (`source=seed`, `support_count=2`) unless a rule with the same statement (case-insensitive) exists. With `--from`, also parses a constitution file (format below) and inserts its rules as `active`, `source=imported`, `support_count=2`. Renders the constitution if no version exists or the render differs from the latest. | `workspace <path>`, `preferences <n> active`, `constitution v<n> <sha>` |
 | `history --text TEXT [--text TEXT ...]` | Inserts each text as a from-scratch edit: `context_ref=past:<n>` (n continues from the highest existing), `draft_id NULL`, `edit_distance 1.0`, current constitution sha. | `#<edit_id> past:<n>` per text |
-| `prefer --statement TEXT [--when TEXT]` | Inserts an `active` preference, `source=manual`, `support_count=3`, `condition` from `--when`. Duplicate statement (case-insensitive, any status): exit 1. Re-renders. | `#<id> active`, `constitution v<n> <sha>` |
+| `prefer --statement TEXT [--when TEXT]` | Inserts an `active` preference, `source=manual`, `support_count=3`, `condition` from `--when`. Duplicate statement (any status): exit 1. Re-renders. | `#<id> active`, `constitution v<n> <sha>` |
 | `learn emit` | Every unlearned edit with what Stage A and B need. `{"edits": []}` when there are none. | JSON below |
 | `learn apply --reconcile JSON [--mode lifecycle\|approve]` | Stage C over the currently unlearned edits, then render, then record. Default mode `lifecycle`. | changelog below |
 | `status [--chart]` | Report. `--chart` also writes `<workspace>/learning-curve.svg`. | text below |
@@ -65,11 +66,11 @@ Steps, in order:
 
 1. Validate. Every id in `support`, `contradict`, and `evidence` is an unlearned edit and not an `untouched` one (an untouched draft is never evidence for or against a rule); every `existing.id`, `merge.keep`, `merge.retire` exists and is not retired. Any failure: exit 1, nothing written.
 2. Counts. `support_count += len(support)`, `contradiction_count += len(contradict)`, `evidence_edit_ids` extended with both.
-3. New rules. Dedupe the statement (case-insensitive) against all rules including retired. A match on a retired rule is skipped unless `evidence` spans at least 4 distinct edits, in which case it is inserted and marked `re-proposed` in the changelog. Insert as `candidate`, `source=learned`, `support_count=len(evidence)`. In `approve` mode insert as `active`, `source=history`, `support_count=max(2, len(evidence))`; the skill has already removed the rules the user dropped.
+3. New rules. Dedupe the statement against all rules including retired. A match on a retired rule is skipped unless `evidence` spans at least 4 distinct edits, in which case it is inserted and marked `re-proposed` in the changelog. Insert as `candidate`, `source=learned`, `support_count=len(evidence)`. In `approve` mode insert as `active`, `source=history`, `support_count=max(2, len(evidence))`; the skill has already removed the rules the user dropped.
 4. Lifecycle. `candidate` becomes `active` when `support_count >= 3 and support_count > 2 * contradiction_count`; rules inserted in step 3 are eligible. `active` becomes `retired` with `retired_reason="contradicted by edits <ids>"` (the ids from this run's `contradict`) when `contradiction_count >= support_count`, evaluated only for rules that were active before this run.
 5. Merges. Retire `retire` with `retired_reason="merged into #<keep>"` and add its `support_count` to `keep`.
 6. Set `learned_at` on every edit in the batch, untouched ones included.
-7. Render. Insert the `constitutions` row (parent is the previous sha) and the `learn_runs` row with the changelog as `summary`. If the render is unchanged, no constitution row is inserted and the run records the existing sha. A render is unchanged when everything below its header line (which carries the version and date) matches the latest version.
+7. Render. Insert the `constitutions` row (parent is the previous sha) and the `learn_runs` row with the changelog as `summary`. If the rules are unchanged, no constitution row is inserted, the run records the existing sha, and the changelog header reads `v<n> -> v<n>`; `constitution.md` is still rewritten so its Examples are current.
 
 Changelog, printed and stored:
 
@@ -83,23 +84,23 @@ Mean distance is over the batch's non-scratch edits, `n/a` when there are none. 
 
 ### status
 
-    pipeline       queued 3 · drafted 2 · approved 1 · sent 40
+    pipeline       captured 3 · drafted 2 · approved 1 · sent 40
     sent this week 4
-    constitution   v7 3f9c1e2a7b4d5c6f · 14 rules · 2 candidates
+    constitution   v7 · 14 rules · 2 candidates
     unlearned      9 edits
     curve          v1 0.62 (12)  v2 0.48 (15)  v3 0.31 (22)
     runs           3, last 2026-09-12T10:02:11Z
 
-`curve` is `v<version> <mean_edit_distance> (<n_edits>)` from `v_learning_curve`, `none` when empty; `runs` is `0` before the first run. `pipeline` and `sent this week` come from the consumer's views and are omitted when those views do not exist.
+`curve` is `v<version> <mean_edit_distance> (<n_edits>)` from `v_learning_curve`, `none` when empty; `runs` is `0` before the first run. `pipeline` and `sent this week` come from the consumer's views and are omitted when those views do not exist. `captured` is the `queued` contact status, printed under a name that does not collide with `queue.md`, whose "waiting" count is the drafted contacts.
 
 ## queue.py
 
 | command | effect | stdout |
 |---|---|---|
-| `capture --url URL --profile JSON` | Normalizes the URL (lowercase, `https`, no `www.`, no query, no fragment, no trailing slash). If a contact with that URL exists, does nothing. Otherwise inserts it as `queued` with `name`, `headline`, `company`, `title` copied from the profile JSON. `name` missing: exit 1. | `#<id> exists <name>` or `#<id> captured <name>` |
+| `capture --url URL [--profile JSON]` | Normalizes the URL (lowercase, `https`, no `www.`, no query, no fragment, no trailing slash). If a contact with that URL exists, does nothing. Without `--profile`, only reports: the skill runs this before the slow profile read. With it, inserts the contact as `queued` with `name`, `headline`, `company`, `title` copied from the profile JSON. `name` missing: exit 1. | `#<id> exists <name>`; without a profile `new`; with one `#<id> captured <name>` |
 | `draft [--redraft ID]` | Emits drafting context for every contact that has no `edits` row and is not `sent`; with `--redraft`, for that contact only (exit 1 if it has an `edits` row). Writes nothing. | JSON below |
-| `add --contact ID --text TEXT [--sources JSON]` | Inserts a draft (`context_ref=contact:<id>`, current constitution sha, `sources_json` default `[]`). Re-renders `queue.md`. | `#<draft_id> draft for #<id> · <n> chars` |
-| `discard --contact ID` or `discard --all` | Deletes every draft of a contact that has no `edits` row and sets the contact back to `queued`, so `draft` starts it over. `--all` does that for every such contact. Reviewed contacts keep all their drafts, so learn history is never touched; `--contact` on one: exit 1. Re-renders `queue.md`. | `#<id> discarded <n> drafts` per contact, lowest id first; nothing when there was nothing to discard |
+| `add --contact ID --text TEXT [--sources JSON]` | Inserts a draft (`context_ref=contact:<id>`, current constitution sha, `sources_json` default `[]`). Re-renders `queue.md`. The contact id is the only id the user ever types, so the draft id is not printed. | `#<id> <name> · <n> chars` |
+| `discard --contact ID` or `discard --all` | Deletes every draft of a contact that has no `edits` row and sets the contact back to `queued`, so `draft` starts it over. `--all` does that for every such contact. Reviewed contacts keep all their drafts, so learn history is never touched; `--contact` on one: exit 1. Re-renders `queue.md`. | `#<id> discarded <n> drafts` per contact, lowest id first; `nothing to discard` when `--all` found no contact |
 | `review [--contact ID --final TEXT [--note TEXT]]` | Without options, parses `<workspace>/queue.md`. With `--contact`, records one contact the same way. Re-renders `queue.md`. | one line per contact: `#<id> ok`, `#<id> edited · distance <d>`, `#<id> untouched`; then `unlearned <n> edits` |
 | `open` | Lists what is ready. | `sent this week <n>`, then `#<id> <name> · <url>` per `approved` contact, lowest id first |
 | `open --contact ID` | Copies the final text to the clipboard (`pbcopy`; else prints `clipboard unavailable`), opens the profile URL (`open`, then `xdg-open`; else prints the URL), prints the note. Named for what it does: nothing here sends. | the note text, then `<n> chars` |

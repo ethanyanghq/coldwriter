@@ -163,6 +163,8 @@ def test_prefer_inserts_a_manual_rule_and_rejects_duplicates(ws):
 
     proc = run("db", "prefer", "--statement", "no EM dashes.", workspace=ws, expect=1)
     assert proc.stderr.strip() == "duplicate of #2 (active)"
+    proc = run("db", "prefer", "--statement", "No em dashes", workspace=ws, expect=1)
+    assert proc.stderr.strip() == "duplicate of #2 (active)"
     assert len(prefs(ws)) == 8
     assert connect(ws).execute("SELECT COUNT(*) FROM constitutions").fetchone()[0] == 2
 
@@ -346,14 +348,18 @@ def test_approve_mode_inserts_kept_rules_as_active_history(ws):
     assert "- Close with a specific ask." in (ws / "constitution.md").read_text()
 
 
-def test_unchanged_render_records_the_existing_sha(ws):
+def test_unchanged_rules_keep_the_version_and_refresh_the_examples(ws):
     seed_edits(ws)
-    first = apply(ws, {}).stdout.splitlines()[0]
-    assert first.startswith("v1 -> v2 · 5 edits")
+    assert "## Examples" not in (ws / "constitution.md").read_text()
+    first = apply(ws, {}).stdout.splitlines()
+    assert len(first) == 1 and first[0].startswith("v1 -> v1 · 5 edits · mean distance 0.")
+    text = (ws / "constitution.md").read_text()
+    assert text.startswith("# Constitution v1 ") and "## Examples\n> " in text
     second = apply(ws, {}).stdout.splitlines()
-    assert second == ["v2 -> v2 · 0 edits · mean distance n/a"]
+    assert second == ["v1 -> v1 · 0 edits · mean distance n/a"]
     conn = connect(ws)
-    assert conn.execute("SELECT COUNT(*) FROM constitutions").fetchone()[0] == 2
+    assert conn.execute("SELECT COUNT(*) FROM constitutions").fetchone()[0] == 1
+    assert "## Examples" not in conn.execute("SELECT text FROM constitutions").fetchone()[0]
     runs = conn.execute(
         "SELECT constitution_sha_from, constitution_sha_to FROM learn_runs"
     ).fetchall()
@@ -366,9 +372,9 @@ def test_unchanged_render_records_the_existing_sha(ws):
 def test_status_report_and_chart(ws):
     seed_edits(ws)
     out = run("db", "status", "--chart", workspace=ws).stdout.splitlines()
-    assert out[0] == "pipeline       queued 0 · drafted 0 · approved 1 · sent 0"
+    assert out[0] == "pipeline       captured 0 · drafted 0 · approved 1 · sent 0"
     assert out[1] == "sent this week 0"
-    assert out[2] == f"constitution   v1 {latest_sha(ws)} · 7 rules · 0 candidates"
+    assert out[2] == "constitution   v1 · 7 rules · 0 candidates"
     assert out[3] == "unlearned      5 edits"
     assert out[4].startswith("curve          v1 0.") and out[4].endswith(" (4)")
     assert out[5] == "runs           0"

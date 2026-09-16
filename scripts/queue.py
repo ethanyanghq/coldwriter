@@ -55,16 +55,20 @@ def read_optional(path):
 
 
 def capture(conn, url, profile):
+    """Insert the contact. Without a profile, only say whether the URL is already a contact."""
     url = normalize_url(url)
-    name = (profile.get("name") or "").strip()
-    if not name:
-        fail("profile has no name")
     existing = conn.execute(
         "SELECT id, name FROM contacts WHERE linkedin_url = ?", (url,)
     ).fetchone()
     if existing:
         print(f"#{existing['id']} exists {existing['name']}")
         return
+    if profile is None:
+        print("new")
+        return
+    name = (profile.get("name") or "").strip()
+    if not name:
+        fail("profile has no name")
     ts = now()
     cur = conn.execute(
         "INSERT INTO contacts (linkedin_url, name, headline, company, title, profile_json,"
@@ -135,8 +139,8 @@ def draft(conn, workspace, redraft):
 
 
 def add(conn, workspace, contact_id, text, sources):
-    contact(conn, contact_id)
-    cur = conn.execute(
+    row = contact(conn, contact_id)
+    conn.execute(
         "INSERT INTO drafts (domain, context_ref, contact_id, text, sources_json,"
         " constitution_sha, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
         (
@@ -151,7 +155,7 @@ def add(conn, workspace, contact_id, text, sources):
     )
     conn.commit()
     render_queue(conn, workspace)
-    print(f"#{cur.lastrowid} draft for #{contact_id} · {len(text)} chars")
+    print(f"#{contact_id} {row['name']} · {len(text)} chars")
 
 
 def discard(conn, workspace, contact_id):
@@ -167,6 +171,8 @@ def discard(conn, workspace, contact_id):
         ]
     else:
         ids = [unreviewed(conn, contact_id)["id"]]
+    if not ids:
+        print("nothing to discard")
     for cid in ids:
         n = conn.execute("DELETE FROM drafts WHERE contact_id = ?", (cid,)).rowcount
         conn.execute(
@@ -357,7 +363,7 @@ def main():
     commands = parser.add_subparsers(dest="command", required=True)
     p = commands.add_parser("capture", parents=[common])
     p.add_argument("--url", required=True)
-    p.add_argument("--profile", required=True)
+    p.add_argument("--profile")
     p = commands.add_parser("draft", parents=[common])
     p.add_argument("--redraft", type=int)
     p = commands.add_parser("add", parents=[common])
@@ -385,7 +391,8 @@ def main():
     workspace = Path(args.workspace)
     conn = connect(workspace)
     if args.command == "capture":
-        capture(conn, args.url, load_json(read_arg(args.profile), "profile"))
+        profile = load_json(read_arg(args.profile), "profile") if args.profile else None
+        capture(conn, args.url, profile)
     elif args.command == "draft":
         draft(conn, workspace, args.redraft)
     elif args.command == "add":

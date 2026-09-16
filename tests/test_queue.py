@@ -87,6 +87,14 @@ def test_capture_normalizes_the_url_and_dedupes(ws):
     assert connect(ws).execute("SELECT COUNT(*) FROM contacts").fetchone()[0] == 1
 
 
+def test_capture_without_a_profile_only_reports(ws):
+    check = ["--url", "https://www.linkedin.com/in/ChrisDoe/"]
+    assert run("queue", "capture", *check, workspace=ws).stdout.strip() == "new"
+    assert connect(ws).execute("SELECT COUNT(*) FROM contacts").fetchone()[0] == 0
+    capture(ws, "https://linkedin.com/in/chrisdoe")
+    assert run("queue", "capture", *check, workspace=ws).stdout.strip() == "#1 exists Chris Doe"
+
+
 def test_capture_without_a_name_is_exit_1(ws):
     args = ["--url", "https://linkedin.com/in/x", "--profile"]
     proc = run("queue", "capture", *args, '{"headline": "x"}', workspace=ws, expect=1)
@@ -150,8 +158,8 @@ def test_draft_exemplars_are_the_five_newest_first(ws):
 def test_add_renders_the_queue_in_the_contract_format(ws):
     capture(ws, "https://linkedin.com/in/chrisdoe")
     capture(ws, "https://linkedin.com/in/adanguyen", ADA)
-    assert add(ws, 1, "Hey Chris, hit home.").stdout.strip() == "#1 draft for #1 · 20 chars"
-    assert add(ws, 2, "Hi Ada.").stdout.strip() == "#2 draft for #2 · 7 chars"
+    assert add(ws, 1, "Hey Chris, hit home.").stdout.strip() == "#1 Chris Doe · 20 chars"
+    assert add(ws, 2, "Hi Ada.").stdout.strip() == "#2 Ada Nguyen · 7 chars"
     assert (ws / "queue.md").read_text() == (
         "# Queue · constitution v1 · 2 waiting\n"
         "\n## [1] Chris Doe — Senior PM, Google\n<https://linkedin.com/in/chrisdoe>\n"
@@ -163,7 +171,7 @@ def test_add_renders_the_queue_in_the_contract_format(ws):
     row = connect(ws).execute("SELECT * FROM drafts WHERE id = 1").fetchone()
     assert (row["context_ref"], row["contact_id"], row["sources_json"]) == ("contact:1", 1, "[]")
 
-    add(ws, 2, "Hi Ada, again.")
+    assert add(ws, 2, "Hi Ada, again.").stdout.strip() == "#2 Ada Nguyen · 14 chars"
     assert "Hi Ada." not in (ws / "queue.md").read_text()
     proc = run("queue", "add", "--contact", "99", "--text", "x", workspace=ws, expect=1)
     assert proc.stderr.strip() == "no contact #99"
@@ -233,7 +241,7 @@ def test_discard_all_leaves_reviewed_contacts_alone(ws):
     assert [r[0] for r in conn.execute("SELECT contact_id FROM drafts")] == [17]
     assert [status(ws, c) for c in (17, 18, 19)] == ["approved", "queued", "queued"]
     assert (ws / "queue.md").read_text() == "# Queue · constitution v1 · 0 waiting\n"
-    assert run("queue", "discard", "--all", workspace=ws).stdout == ""
+    assert run("queue", "discard", "--all", workspace=ws).stdout == "nothing to discard\n"
 
 
 # --- review --------------------------------------------------------------------------------

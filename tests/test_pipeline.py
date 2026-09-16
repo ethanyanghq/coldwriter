@@ -53,16 +53,16 @@ def test_golden_path(tmp_path):
     ]
     reconcile = {"existing": [{"id": 6, "support": [2], "contradict": []}]}
     out = run("db", "learn", "apply", "--reconcile", json.dumps(reconcile), workspace=ws).stdout
-    assert out.startswith("v1 -> v2 · 2 edits · mean distance 0.")
+    assert out.startswith("v1 -> v1 · 2 edits · mean distance 0.")  # counts moved, rules did not
     assert (
         connect(ws).execute("SELECT support_count FROM preferences WHERE id = 6").fetchone()[0] == 3
     )
 
     run("queue", "sent", "--contact", "1", workspace=ws)
     out = run("db", "status", workspace=ws).stdout.splitlines()
-    assert out[0] == "pipeline       queued 0 · drafted 0 · approved 1 · sent 1"
+    assert out[0] == "pipeline       captured 0 · drafted 0 · approved 1 · sent 1"
     assert out[1] == "sent this week 1"
-    assert out[2].startswith("constitution   v2 ") and out[2].endswith("· 7 rules · 0 candidates")
+    assert out[2] == "constitution   v1 · 7 rules · 0 candidates"
     assert out[3] == "unlearned      0 edits"
     assert out[4].startswith("curve          v1 0.") and out[4].endswith(" (2)")
     assert out[5].startswith("runs           1, last ")

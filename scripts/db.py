@@ -76,9 +76,10 @@ def rule(conn, pref_id):
 
 
 def find_rule(conn, domain, statement):
-    """The rule with this statement, case-insensitive, any status; live ones first."""
+    """The rule with this statement, ignoring case and a trailing period, any status; live first."""
     return conn.execute(
-        "SELECT * FROM preferences WHERE domain = ? AND lower(statement) = lower(?)"
+        "SELECT * FROM preferences WHERE domain = ?"
+        " AND lower(rtrim(statement, '.!')) = lower(rtrim(?, '.!'))"
         " ORDER BY status = 'retired', id",
         (domain, statement),
     ).fetchone()
@@ -105,13 +106,24 @@ def retire_rule(conn, pref_id, reason, ts):
 # --- constitution --------------------------------------------------------------------------
 
 
+def header(text):
+    """The first line, which carries the version and date."""
+    return text.split("\n", 1)[0]
+
+
 def body(text):
-    """Everything below the header line, which carries the version and date."""
+    """Everything below the header line."""
     return text.split("\n", 1)[1]
 
 
+def rules_part(text):
+    """The body up to Examples: what a new version is about."""
+    return body(text).split("\n## Examples", 1)[0]
+
+
 def render_preview(conn, domain):
-    """(text, version, changed): the next render, or the latest one when nothing changed."""
+    """(text, version, changed): the next render, or the latest version with fresh Examples
+    when the rules are the same."""
     latest = latest_constitution(conn, domain)
     rules = conn.execute(
         "SELECT statement, condition FROM preferences"
@@ -126,17 +138,17 @@ def render_preview(conn, domain):
     text = render_constitution(
         [tuple(r) for r in rules], [e[0] for e in examples], version, now()[:10]
     )
-    if latest and body(text) == body(latest["text"]):
-        return latest["text"], latest["version"], False
+    if latest and rules_part(text) == rules_part(latest["text"]):
+        return header(latest["text"]) + "\n" + body(text), latest["version"], False
     return text, version, True
 
 
 def render_and_record(conn, workspace, domain):
-    """Write constitution.md; insert a constitutions row only when the render changed."""
+    """Write constitution.md; insert a constitutions row only when the rules changed."""
     text, version, changed = render_preview(conn, domain)
-    sha = sha16(text)
+    latest = latest_constitution(conn, domain)
+    sha = sha16(text) if changed else latest["sha"]
     if changed:
-        latest = latest_constitution(conn, domain)
         conn.execute(
             "INSERT INTO constitutions (sha, domain, version, text, parent_sha, created_at)"
             " VALUES (?, ?, ?, ?, ?, ?)",
@@ -489,15 +501,17 @@ def status(conn, workspace, domain, chart):
     lines = []
     if has_view(conn, "v_pipeline"):
         counts = dict(conn.execute("SELECT status, n FROM v_pipeline").fetchall())
-        stages = ("queued", "drafted", "approved", "sent")
-        lines.append(("pipeline", " · ".join(f"{s} {counts.get(s, 0)}" for s in stages)))
+        # 'queued' is printed as 'captured': queue.md's "waiting" means drafted, not this.
+        stages = (("queued", "captured"), ("drafted", "drafted"))
+        stages += (("approved", "approved"), ("sent", "sent"))
+        lines.append(("pipeline", " · ".join(f"{label} {counts.get(s, 0)}" for s, label in stages)))
     if has_view(conn, "v_sends_this_week"):
         lines.append(
             ("sent this week", conn.execute("SELECT n FROM v_sends_this_week").fetchone()[0])
         )
     latest = latest_constitution(conn, domain)
     rules = f"{count(conn, domain, 'active')} rules · {count(conn, domain, 'candidate')} candidates"
-    lines.append(("constitution", f"v{latest['version']} {latest['sha']} · {rules}"))
+    lines.append(("constitution", f"v{latest['version']} · {rules}"))
     unlearned_n = conn.execute(
         "SELECT COUNT(*) FROM edits WHERE domain = ? AND learned_at IS NULL", (domain,)
     ).fetchone()[0]
