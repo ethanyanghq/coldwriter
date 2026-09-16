@@ -14,9 +14,11 @@ The current directory is the workspace. Rerunning is safe; do it after changing 
        python3 ${CLAUDE_PLUGIN_ROOT}/scripts/db.py init $ARGUMENTS
        python3 ${CLAUDE_PLUGIN_ROOT}/scripts/queue.py render
 
-2. If `me/_profile.md` does not exist yet, ask and wait for the answer:
+2. If `me/_profile.md` does not exist yet, look at what `me/` holds, ask for what is still missing, and wait for the answer:
 
-   > Tell me about yourself: where you are, what you want from these chats, and a few hooks people might share with you (school, hometown, hobby, past employer). Drop your resume into `me/`. If you have connection notes you have sent before, put those in too. That part is optional.
+   > Tell me about yourself: where you are, what you want from these chats, and a few hooks people might share with you (school, hometown, hobby, past employer).
+
+   Add `Drop your resume into me/.` only when `me/` has no resume, and `If you have connection notes you have sent before, put those in too. That part is optional.` only when nothing in `me/` looks like sent notes. Name the files you found, so they know they were seen.
 
 3. Read everything in `me/` (PDFs included) and the answer. Write `me/_profile.md`: who they are, what they want from these chats, their hooks, and three things they have done worth mentioning. Facts only: no adjectives, nothing they did not say or show. Leave `me/corrections.md` alone.
 
