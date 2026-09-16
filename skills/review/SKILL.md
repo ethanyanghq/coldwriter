@@ -20,7 +20,7 @@ For each contact they mention, decide which of these their words are. A full not
 
       python3 ${CLAUDE_PLUGIN_ROOT}/scripts/queue.py review --contact 18 --final "<their text>" --note "<their reason, if any>"
 
-- An instruction ("cut the second sentence, less eager"): rewrite the draft (it is in `queue.md`) applying only that instruction and changing nothing else. Show the result and wait. If they say it is right, record it with the instruction as the note. If they answer with the text they want instead, record their text, still with the instruction as the note.
+- An instruction ("cut the second sentence, less eager"): rewrite the draft (it is in `queue.md`) applying only that instruction and changing nothing else. Show the result and ask for `yes`. If they say yes, record it with the instruction as the note. If they answer with the text they want instead, record their text, still with the instruction as the note. `ok` always means the draft in `queue.md`, never a rewrite, so do not offer it here. If the instruction itself says to send ("..., then send"), record the rewrite without waiting and say that you did.
 
       python3 ${CLAUDE_PLUGIN_ROOT}/scripts/queue.py review --contact 18 --final "<revised note>" --note "cut the second sentence, less eager"
 
@@ -50,6 +50,8 @@ Run it and show its lines verbatim. Do not read `queue.md` afterwards: the scrip
 
 ## After either
 
-Show every line the review script prints, verbatim, including its last line `unlearned <n> edits`. At 15 or more, suggest `/coldwriter:learn`; never insist.
+Show every line the review script prints, verbatim. Its last line is `unlearned <n> edits`; when you ran it more than once, show that line once, from the last run. At 15 or more, suggest `/coldwriter:learn`; never insist.
+
+A recorded or sent note is the user's decision. Do not check it against the constitution or point out rules it breaks; `/coldwriter:learn` is where edits meet rules.
 
 The user sends every note by hand. Never call a tool that writes to LinkedIn. Never edit `queue.md` yourself.
