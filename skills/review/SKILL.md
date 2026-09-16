@@ -50,7 +50,7 @@ Run it and show its lines verbatim. Do not read `queue.md` afterwards: the scrip
 
 ## After either
 
-Show every line the review script prints, verbatim. Its last line is `unlearned <n> edits`; when you ran it more than once, show that line once, from the last run. At 15 or more, suggest `/coldwriter:learn`; never insist.
+Show the script's `#<id> ...` lines verbatim, then one `unlearned <n> edits` line: the last run's. Every run prints that line, and only the last one is current, so the earlier ones are left out. At 15 or more, suggest `/coldwriter:learn`; never insist.
 
 A recorded or sent note is the user's decision. Do not check it against the constitution or point out rules it breaks; `/coldwriter:learn` is where edits meet rules.
 
