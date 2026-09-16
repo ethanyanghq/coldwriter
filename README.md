@@ -2,7 +2,7 @@
 
 A LinkedIn coffee-chat engine that runs inside Claude Code. Point it at profiles, get one connection note in your voice, edit it, and it learns from every edit. You press Send.
 
-**Status:** 0.1.0, pre-release.
+**Status:** pre-release.
 
 ## The three no's
 
